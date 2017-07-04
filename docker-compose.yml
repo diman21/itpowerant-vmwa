@@ -1,0 +1,39 @@
+version: "2"
+services:
+  db:
+#   image: mysql:5.7
+   image: mysql:5.5
+   ports:
+    - 3306:3306
+   volumes:
+#    - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+    - ./db2:/var/lib/mysql
+    - /etc/localtime:/etc/localtime:ro
+    - ~/.bash_history:/root/.bash_history
+   environment:
+    - MYSQL_ALLOW_EMPTY_PASSWORD="yes"
+
+  phpMyAdmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+     - PMA_ARBITRARY=1
+     - PMA_USER=root
+     - PMA_PORT=3306
+     - PMA_HOST=db
+    ports:
+     - 8890:80
+    depends_on:
+      - db
+
+  httpd:
+    build:
+      context: ./docker/httpd
+    ports:
+     - 80:80
+     - 443:443
+    volumes:
+     - /etc/localtime:/etc/localtime:ro
+     - ~/.bash_history:/root/.bash_history
+     - ./source:/srv
+    depends_on:
+      - db
